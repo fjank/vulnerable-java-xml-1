@@ -13,6 +13,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -25,14 +29,32 @@ public class Tester {
                 "</root>";
         //System.out.println(parseDOM(xml));
         //System.out.println(parseSAX(xml));
-        System.out.println(parseStAX(xml));
+        //System.out.println(parseStAX(xml));
+        String schema = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
+                "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "<xs:element name=\"root\">" +
+                "<xs:complexType>\n" +
+                "    <xs:sequence>\n" +
+                "      <xs:element name=\"test\" type=\"xs:string\"/>" +
+                "    </xs:sequence>\n" +
+                "  </xs:complexType>\n" +
+                "</xs:element>" +
+                "</xs:schema>";
+        System.out.println(parseSchema(schema, xml));
+    }
+
+    private static String parseSchema(String xml, String xml2) throws SAXException, IOException {
+        SchemaFactory sf = SchemaFactory.newDefaultInstance();
+        Schema schema = sf.newSchema(new StreamSource(new StringReader(xml)));
+        Validator validator = schema.newValidator();
+        validator.validate(new StreamSource(new StringReader(xml2)));
+        return null;
     }
 
     private static String parseStAX(String xml) throws XMLStreamException {
         boolean testElementActive = false;
         StringBuilder rv = new StringBuilder();
         XMLInputFactory f = XMLInputFactory.newInstance();
-        f.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         XMLStreamReader r = f.createXMLStreamReader(new StringReader(xml));
         while (r.hasNext()) {
             r.next();
@@ -42,7 +64,7 @@ public class Tester {
             if (r.getEventType() == XMLStreamConstants.END_ELEMENT && r.getName().getLocalPart().equals("test")) {
                 testElementActive = false;
             }
-            if (r.getEventType()==XMLStreamConstants.CHARACTERS && testElementActive) {
+            if (r.getEventType() == XMLStreamConstants.CHARACTERS && testElementActive) {
                 rv.append(r.getText());
             }
         }
@@ -51,7 +73,6 @@ public class Tester {
 
     private static String parseSAX(String xml) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         SAXParser sp = spf.newSAXParser();
         XMLReader xmlReader = sp.getXMLReader();
         TestExtractor testExtractor = new TestExtractor();
