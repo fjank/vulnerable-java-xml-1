@@ -4,10 +4,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSParser;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.*;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -21,7 +24,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public class Tester {
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, XMLStreamException {
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, XMLStreamException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ENTITY xxe SYSTEM \"file:///C:\\Windows\\System32\\drivers\\etc\\\">]>" +
                 "<root>" +
@@ -40,7 +43,28 @@ public class Tester {
                 "  </xs:complexType>\n" +
                 "</xs:element>" +
                 "</xs:schema>";
-        System.out.println(parseSchema(schema, xml));
+        //System.out.println(parseSchema(schema, xml));
+//        System.out.println(parseDOMLS(xml));
+    }
+
+    private static String parseDOMLS(String xml) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        LSParser builder = impl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+        LSInput lsInput = impl.createLSInput();
+        lsInput.setCharacterStream(new StringReader(xml));
+        Document doc = builder.parse(lsInput);
+        String rv = "";
+        NodeList list = doc.getElementsByTagName("test");
+        for (int temp = 0; temp < list.getLength(); temp++) {
+            Node node = list.item(temp);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) node;
+                // get test's attribute
+                rv = element.getTextContent();
+            }
+        }
+        return rv;
     }
 
     private static String parseSchema(String xml, String xml2) throws SAXException, IOException {
