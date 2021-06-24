@@ -6,6 +6,7 @@ The application has several vulnerable endpoints, each for one of the different 
 methods in java.
 
 ## Notes
+* DOM: is served at the root (/) of the application, is vulnerable to XXE, but does not contain the actual attack. The other endpoints contains a default attack-vector.
 * Schema: demonstrates error based XXE (only the beginning of the file is leaked).
 * Validator: you need to start your own OOB server using FTP. Usually you also need to host
   an evil.dtd, but this server answers to evil.dtd, with defaults to requesting localhost:2121.
@@ -20,4 +21,6 @@ gradlew build
 docker build --build-arg JAR_FILE=build/libs/\*.jar -t fjank/vuln-xml .
 docker run -p 8080:8080 fjank/vuln-xml .
 ```
-Open localhost:8080 in a browser.
+Open localhost:8080 in a browser, and explore the various vulnerable-by-default parsers.
+
+A link to the corresponding article for this repo will be added as soon as the article has been published.

@@ -49,7 +49,10 @@ public class VulnerableXml1Application {
     // all the getters
     @RequestMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
     public String vulnerableDom() {
-        return getHTML(getStandardPayload(), "DOM");
+        return getHTML("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<root>\n" +
+                "<test>It works!</test>\n" +
+                "</root>\n", "DOM");
     }
 
     @RequestMapping(value = "/vulnerableSAX", produces = MediaType.TEXT_HTML_VALUE, method = RequestMethod.GET)
