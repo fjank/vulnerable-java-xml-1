@@ -23,4 +23,4 @@ docker run -p 8080:8080 fjank/vuln-xml .
 ```
 Open localhost:8080 in a browser, and explore the various vulnerable-by-default parsers.
 
-A link to the corresponding article for this repo will be added as soon as the article has been published.
+[the corresponding article for this repo](https://fjank.no/blog/2021-06-28-java-xml-security/).
